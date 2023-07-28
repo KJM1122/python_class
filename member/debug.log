@@ -1,0 +1,41 @@
+2023-07-28 15:02:27,184 [member_dao.py:37|DEBUG] connect_db(): <oracledb.Connection to scott@192.168.0.18:1521/XE>
+2023-07-28 15:02:27,184 [member_dao.py:292|DEBUG] do_retrieve(): 1. self.conn: <oracledb.Connection to scott@192.168.0.18:1521/XE>
+2023-07-28 15:02:27,184 [member_dao.py:296|DEBUG] do_retrieve(): 2. cur: <oracledb.Cursor on <oracledb.Connection to scott@192.168.0.18:1521/XE>>
+2023-07-28 15:02:27,184 [member_dao.py:333|DEBUG] do_retrieve(): 3. sql: 
+                SELECT A.*, B.*
+                FROM (
+                SELECT
+                    TT1.rnum as num,
+                    TT1.user_id,
+                    TT1.name,
+                    TT1.passwd,
+                    TT1.email,
+                    -- 당일이면 HH24:MI
+                    -- 그렇지 않으면 YYYY-MM-DD
+                    DECODE(TO_CHAR(TT1.reg_dt, 'YYYY-MM-DD'), TO_CHAR(SYSDATE, 'YYYY-MM-DD')
+                                                            , TO_CHAR(TT1.reg_dt, 'HH24:MI')
+                                                            , TO_CHAR(TT1.reg_dt, 'YYYY-MM-DD')) AS reg_dt,
+                    TT1.reg_id
+                FROM (
+                    SELECT ROWNUM AS rnum, T1.*
+                    FROM (
+                        SELECT *
+                        FROM member
+                        --WHERE
+                        ORDER BY reg_dt DESC
+                    )T1
+                    WHERE ROWNUM <= 10
+                )TT1
+                WHERE rnum >= 1
+                )A
+                CROSS JOIN
+                (
+                SELECT COUNT(*) AS total_cnt
+                FROM member
+                --WHERE
+                )B
+            
+2023-07-28 15:02:27,191 [member_dao.py:350|DEBUG] do_retrieve(): 4. vo: num:1, user_id:lion_01, name:라이언01, passwd:4321, email:lion_01@gmail.com, reg_dt:14:09, reg_id:lion_01
+2023-07-28 15:02:27,191 [member_dao.py:350|DEBUG] do_retrieve(): 4. vo: num:2, user_id:lion_03, name:라이언03, passwd:4321, email:lion_03@gmail.com, reg_dt:14:09, reg_id:lion_03
+2023-07-28 15:02:27,191 [member_dao.py:350|DEBUG] do_retrieve(): 4. vo: num:3, user_id:lion_02, name:라이언02, passwd:4321, email:lion_02@gmail.com, reg_dt:14:09, reg_id:lion_02
+2023-07-28 15:02:27,191 [member_dao.py:357|DEBUG] do_retrieve(): 5. do_retrieve finally
